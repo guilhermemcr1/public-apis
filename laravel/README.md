@@ -1,8 +1,8 @@
 # Public APIs - Laravel
 
-Aplicacao base em Laravel para publicar APIs do repositorio.
+Aplicação base em Laravel para publicar APIs do repositório.
 
-## Documentacao das APIs
+## Documentação das APIs
 
 - [`getip`](../apis/getip/README.md)
 
@@ -15,7 +15,7 @@ php artisan key:generate
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-## Producao (resumo)
+## Produção (resumo)
 
 ```bash
 composer install --no-dev --optimize-autoloader

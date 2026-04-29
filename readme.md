@@ -1,28 +1,23 @@
-# APIs Publicas
+# APIs Públicas
 
-Repositorio destinado ao upload das APIs publicas que eu criei para utilizacao diaria em projetos internos, projetos publicos e testes.
+Repositório das minhas APIs públicas para uso em projetos internos, projetos públicos e testes.
 
-As APIs deste repositorio estao disponiveis para teste e utilizacao.
+Aqui você encontra um índice central com as APIs disponíveis. Para ver como usar cada API, acesse a documentação específica da API desejada.
 
-## Visao geral
+## Sobre o repositório
 
 - Base principal em Laravel (pasta `laravel/`)
-- APIs sem autenticacao nesta fase
+- APIs sem autenticação nesta fase
 - Rate limit por IP
-- Estrutura preparada para adicionar novas APIs com o tempo
+- Documentação separada por API em `apis/<nome-da-api>/README.md`
 
-## API disponivel
+## Endpoint principal
 
-- [`getip`](./apis/getip/README.md): detecta IP do cliente, com suporte a retorno em texto ou JSON, filtros `ipv4` e `ipv6`
+- `https://api.galarca.dev`
 
-## Endpoint em producao
+## APIs disponíveis
 
-- `GET https://api.galarca.dev/getip`
-- `GET https://api.galarca.dev/getip?format=json`
-
-Exemplos prontos de consumo em JavaScript, PHP e Node.js estao na documentacao da API:
-
-- [`apis/getip/README.md`](./apis/getip/README.md)
+- [`getip`](./apis/getip/README.md): detecta IP do cliente, com suporte a retorno em texto ou JSON e filtros `ipv4` e `ipv6`
 
 ## Executar localmente
 
@@ -33,19 +28,14 @@ php artisan key:generate
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Teste rapido:
+Teste rápido:
 
 ```bash
 curl "http://127.0.0.1:8000/getip?format=json"
 ```
 
-## Estrutura do repositorio
+## Estrutura do repositório
 
-- `laravel/`: aplicacao principal em Laravel
-- `apis/`: pasta de documentacao das APIs, uma subpasta por API
-- `apis/getip/README.md`: documentacao funcional completa da API getip (com exemplos JS, PHP e Node)
-
-## Roadmap
-
-- Adicionar novas APIs publicas e internas
-- Publicar documentacao central em Docusaurus
+- `laravel/`: aplicação principal em Laravel
+- `apis/`: pasta de documentação das APIs, uma subpasta por API
+- `apis/getip/README.md`: documentação funcional completa da API getip (com exemplos JS, PHP e Node)
