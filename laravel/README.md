@@ -5,6 +5,7 @@ Aplicação base em Laravel para publicar APIs do repositório.
 ## Documentação das APIs
 
 - [`getip`](../apis/getip/README.md)
+- [`getuuid`](../apis/getuuid/README.md)
 
 ## Desenvolvimento local
 

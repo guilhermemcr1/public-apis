@@ -18,6 +18,7 @@ Aqui você encontra um índice central com as APIs disponíveis. Para ver como u
 ## APIs disponíveis
 
 - [`getip`](./apis/getip/README.md): detecta IP do cliente, com suporte a retorno em texto ou JSON e filtros `ipv4` e `ipv6`
+- [`getuuid`](./apis/getuuid/README.md): gera UUID válido com suporte às versões 4 e 7
 
 ## Executar localmente
 
@@ -32,6 +33,7 @@ Teste rápido:
 
 ```bash
 curl "http://127.0.0.1:8000/getip?format=json"
+curl "http://127.0.0.1:8000/getuuid?version=7"
 ```
 
 ## Estrutura do repositório
@@ -39,3 +41,4 @@ curl "http://127.0.0.1:8000/getip?format=json"
 - `laravel/`: aplicação principal em Laravel
 - `apis/`: pasta de documentação das APIs, uma subpasta por API
 - `apis/getip/README.md`: documentação funcional completa da API getip (com exemplos JS, PHP e Node)
+- `apis/getuuid/README.md`: documentação funcional completa da API getuuid (com exemplos JS, PHP e Node)

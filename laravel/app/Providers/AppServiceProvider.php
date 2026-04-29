@@ -54,6 +54,28 @@ class AppServiceProvider extends ServiceProvider
                     );
                 });
         });
+
+        RateLimiter::for('getuuid', function (Request $request): Limit {
+            $maxAttempts = (int) config('getuuid.rate.limit', 60);
+            $windowSeconds = (int) config('getuuid.rate.window_seconds', 60);
+
+            return Limit::perMinutes(max(1, (int) ceil($windowSeconds / 60)), $maxAttempts)
+                ->by($request->ip() ?: (string) $request->server('REMOTE_ADDR', '0.0.0.0'))
+                ->response(function (Request $request, array $headers) {
+                    $retryAfter = (int) ($headers['Retry-After'] ?? config('getuuid.rate.window_seconds', 60));
+                    $message = "Rate limit atingido. Tente novamente em {$retryAfter} segundos.";
+
+                    return response()->json(
+                        [
+                            'error' => $message,
+                            'status' => 429,
+                        ],
+                        429,
+                        $this->baseHeaders($headers + ['Retry-After' => $retryAfter]),
+                        JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+                    );
+                });
+        });
     }
 
     /**
