@@ -5,7 +5,7 @@ return [
     'documentations' => [
         'getip' => [
             'api' => [
-                'title' => 'Galarca Public APIs - Get IP',
+                'title' => 'APIs Públicas - Get IP',
             ],
 
             'routes' => [
@@ -52,7 +52,7 @@ return [
         ],
         'getuuid' => [
             'api' => [
-                'title' => 'Galarca Public APIs - Get UUID',
+                'title' => 'APIs Públicas - Get UUID',
             ],
             'routes' => [
                 'api' => 'api/documentation/getuuid',

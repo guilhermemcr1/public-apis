@@ -5,7 +5,7 @@ namespace App\OpenApi\GetUuid;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
-    title: 'Galarca Public APIs - Get UUID',
+    title: 'APIs Públicas - Get UUID',
     version: '1.0.0',
     description: 'Documentação oficial da API pública de geração de UUID'
 )]

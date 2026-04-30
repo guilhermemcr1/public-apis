@@ -5,7 +5,7 @@ namespace App\OpenApi\GetIp;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
-    title: 'Galarca Public APIs - Get IP',
+    title: 'APIs Públicas - Get IP',
     version: '1.0.0',
     description: 'Documentação oficial da API pública de detecção de IP'
 )]
