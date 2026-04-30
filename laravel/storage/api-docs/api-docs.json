@@ -1,0 +1,130 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Galarca Public APIs",
+        "description": "Documentação oficial das APIs públicas da plataforma Galarca",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/getip": {
+            "get": {
+                "summary": "Retorna o IP público do cliente",
+                "operationId": "37d8eed605de494f29760cb6cdd2391b",
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "Use json para resposta estruturada",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ipv4",
+                        "in": "query",
+                        "description": "Filtra apenas IPv4",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "ipv6",
+                        "in": "query",
+                        "description": "Filtra apenas IPv6",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta em texto ou JSON"
+                    },
+                    "400": {
+                        "description": "Parâmetros inválidos"
+                    },
+                    "404": {
+                        "description": "Tipo de IP solicitado não encontrado"
+                    },
+                    "429": {
+                        "description": "Rate limit atingido"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://api.galarca.dev",
+                        "description": "Servidor de Produção"
+                    }
+                ]
+            }
+        },
+        "/getuuid": {
+            "get": {
+                "summary": "Gera UUID válido",
+                "operationId": "79e714b25b90a873c286b18db855ccbf",
+                "parameters": [
+                    {
+                        "name": "version",
+                        "in": "query",
+                        "description": "Versão do UUID (4 ou 7)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                4,
+                                7
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UUID gerado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "uuid",
+                                        "version"
+                                    ],
+                                    "properties": {
+                                        "uuid": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "version": {
+                                            "type": "integer",
+                                            "enum": [
+                                                4,
+                                                7
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Versão inválida"
+                    },
+                    "429": {
+                        "description": "Rate limit atingido"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://api.galarca.dev",
+                        "description": "Servidor de Produção"
+                    }
+                ]
+            }
+        }
+    }
+}
