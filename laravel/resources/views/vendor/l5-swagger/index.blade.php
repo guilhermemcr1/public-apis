@@ -153,7 +153,7 @@
 
 <body @if(config('l5-swagger.defaults.ui.display.dark_mode')) id="dark-mode" @endif>
 <header class="topbar-custom">
-    <div class="topbar-custom__brand">Galarca Public APIs - Swagger UI</div>
+    <div class="topbar-custom__brand">Documentação das APIs Públicas</div>
     <nav class="topbar-custom__tabs">
         <a href="{{ url('/api/documentation/getip') }}" class="topbar-custom__tab {{ $documentation === 'getip' ? 'topbar-custom__tab--active' : '' }}">Get IP</a>
         <a href="{{ url('/api/documentation/getuuid') }}" class="topbar-custom__tab {{ $documentation === 'getuuid' ? 'topbar-custom__tab--active' : '' }}">Get UUID</a>
