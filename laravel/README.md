@@ -7,6 +7,11 @@ Aplicação base em Laravel para publicar APIs do repositório.
 - [`getip`](../apis/getip/README.md)
 - [`getuuid`](../apis/getuuid/README.md)
 
+## Swagger (UI)
+
+- `https://api.galarca.dev/api/documentation/getip`
+- `https://api.galarca.dev/api/documentation/getuuid`
+
 ## Desenvolvimento local
 
 ```bash

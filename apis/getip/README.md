@@ -7,6 +7,11 @@ Documentação da API pública de detecção de IP.
 - Produção: `https://api.galarca.dev`
 - Local: `http://127.0.0.1:8000`
 
+## Swagger
+
+- UI (Get IP): `https://api.galarca.dev/api/documentation/getip`
+- JSON OpenAPI (Get IP): `https://api.galarca.dev/docs/getip`
+
 ## Endpoint
 
 ### `GET /getip`

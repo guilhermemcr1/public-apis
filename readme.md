@@ -15,6 +15,11 @@ Aqui você encontra um índice central com as APIs disponíveis. Para ver como u
 
 - `https://api.galarca.dev`
 
+## Swagger (documentação interativa)
+
+- Get IP: `https://api.galarca.dev/api/documentation/getip`
+- Get UUID: `https://api.galarca.dev/api/documentation/getuuid`
+
 ## APIs disponíveis
 
 - [`getip`](./apis/getip/README.md): detecta IP do cliente, com suporte a retorno em texto ou JSON e filtros `ipv4` e `ipv6`

@@ -7,6 +7,11 @@ Documentação da API pública de geração de UUID.
 - Produção: `https://api.galarca.dev`
 - Local: `http://127.0.0.1:8000`
 
+## Swagger
+
+- UI (Get UUID): `https://api.galarca.dev/api/documentation/getuuid`
+- JSON OpenAPI (Get UUID): `https://api.galarca.dev/docs/getuuid`
+
 ## Endpoint
 
 ### `GET /getuuid`
