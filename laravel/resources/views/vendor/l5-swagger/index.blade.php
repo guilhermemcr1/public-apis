@@ -24,6 +24,41 @@
       margin:0;
       background: #fafafa;
     }
+    .topbar-custom {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar-custom__brand {
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .topbar-custom__tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .topbar-custom__tab {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1;
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+    }
+    .topbar-custom__tab--active {
+      background: #2563eb;
+      color: #eff6ff;
+      border-color: #3b82f6;
+    }
     </style>
     @if(config('l5-swagger.defaults.ui.display.dark_mode'))
         <style>
@@ -117,6 +152,13 @@
 </head>
 
 <body @if(config('l5-swagger.defaults.ui.display.dark_mode')) id="dark-mode" @endif>
+<header class="topbar-custom">
+    <div class="topbar-custom__brand">Galarca Public APIs - Swagger UI</div>
+    <nav class="topbar-custom__tabs">
+        <a href="{{ url('/api/documentation/getip') }}" class="topbar-custom__tab {{ $documentation === 'getip' ? 'topbar-custom__tab--active' : '' }}">Get IP</a>
+        <a href="{{ url('/api/documentation/getuuid') }}" class="topbar-custom__tab {{ $documentation === 'getuuid' ? 'topbar-custom__tab--active' : '' }}">Get UUID</a>
+    </nav>
+</header>
 <div id="swagger-ui"></div>
 
 <script src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>
