@@ -13,6 +13,8 @@ return [
                  * Route for accessing api documentation interface
                  */
                 'api' => 'api/documentation/getip',
+                'docs' => 'docs/getip',
+                'oauth2_callback' => 'api/oauth2-callback/getip',
             ],
             'paths' => [
                 /*
@@ -54,6 +56,8 @@ return [
             ],
             'routes' => [
                 'api' => 'api/documentation/getuuid',
+                'docs' => 'docs/getuuid',
+                'oauth2_callback' => 'api/oauth2-callback/getuuid',
             ],
             'paths' => [
                 'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', false),

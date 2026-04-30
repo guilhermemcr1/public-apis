@@ -1,0 +1,81 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Galarca Public APIs - Get UUID",
+        "description": "Documentação oficial da API pública de geração de UUID",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/getuuid": {
+            "get": {
+                "tags": [
+                    "Get UUID"
+                ],
+                "summary": "Gera UUID válido",
+                "operationId": "80372f0ea8f132e8cfa974d8778b2eb4",
+                "parameters": [
+                    {
+                        "name": "version",
+                        "in": "query",
+                        "description": "Versão do UUID (4 ou 7)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                4,
+                                7
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UUID gerado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "uuid",
+                                        "version"
+                                    ],
+                                    "properties": {
+                                        "uuid": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "version": {
+                                            "type": "integer",
+                                            "enum": [
+                                                4,
+                                                7
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Versão inválida"
+                    },
+                    "429": {
+                        "description": "Rate limit atingido"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://api.galarca.dev",
+                        "description": "Servidor de Produção"
+                    }
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Get UUID",
+            "description": "Get UUID"
+        }
+    ]
+}

@@ -1,0 +1,77 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Galarca Public APIs - Get IP",
+        "description": "Documentação oficial da API pública de detecção de IP",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/getip": {
+            "get": {
+                "tags": [
+                    "Get IP"
+                ],
+                "summary": "Retorna o IP público do cliente",
+                "operationId": "30755c07e3fffafef6a415fd1475c77f",
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "Use json para resposta estruturada",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ipv4",
+                        "in": "query",
+                        "description": "Filtra apenas IPv4",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "ipv6",
+                        "in": "query",
+                        "description": "Filtra apenas IPv6",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resposta em texto ou JSON"
+                    },
+                    "400": {
+                        "description": "Parâmetros inválidos"
+                    },
+                    "404": {
+                        "description": "Tipo de IP solicitado não encontrado"
+                    },
+                    "429": {
+                        "description": "Rate limit atingido"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://api.galarca.dev",
+                        "description": "Servidor de Produção"
+                    }
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Get IP",
+            "description": "Get IP"
+        }
+    ]
+}
