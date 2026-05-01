@@ -17,6 +17,7 @@ Aqui você encontra um índice central com as APIs disponíveis. Para ver como u
 
 ## Swagger (documentação interativa)
 
+- Índice com todas as APIs: [https://api.galarca.dev/docs](https://api.galarca.dev/docs) (equivalente: [https://api.galarca.dev/api/documentation](https://api.galarca.dev/api/documentation))
 - Get IP: [https://api.galarca.dev/api/documentation/getip](https://api.galarca.dev/api/documentation/getip)
 - Get UUID: [https://api.galarca.dev/api/documentation/getuuid](https://api.galarca.dev/api/documentation/getuuid)
 
