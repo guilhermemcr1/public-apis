@@ -9,7 +9,6 @@ use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;
 use GeoIp2\Model\City;
 use Illuminate\Support\Facades\Log;
-use MaxMind\Db\Reader as MmdbReader;
 use MaxMind\Db\Reader\InvalidDatabaseException;
 use Throwable;
 
@@ -23,10 +22,6 @@ final class MaxMindGeoLiteLookup implements GeoIpLookupContract
 
     private bool $asnReaderFailed = false;
 
-    private ?MmdbReader $anonymousMmdbReader = null;
-
-    private bool $anonymousMmdbReaderFailed = false;
-
     public function lookup(string $ipAddress, string $locationDetail): array
     {
         $warnings = [];
@@ -35,7 +30,6 @@ final class MaxMindGeoLiteLookup implements GeoIpLookupContract
             return [
                 'location' => null,
                 'isp' => null,
-                'privacy' => $this->neutralPrivacyFlags(),
                 'warnings' => [],
             ];
         }
@@ -43,95 +37,8 @@ final class MaxMindGeoLiteLookup implements GeoIpLookupContract
         return [
             'location' => $this->lookupCity($ipAddress, $locationDetail, $warnings),
             'isp' => $this->lookupIsp($ipAddress, $warnings),
-            'privacy' => $this->lookupPrivacy($ipAddress, $warnings),
             'warnings' => $warnings,
         ];
-    }
-
-    /**
-     * GeoLite2 Anonymous IP via MaxMind DB direto (compatível com GeoLite2-Anonymous-IP).
-     *
-     * @param  list<string>  $warnings
-     * @return array{is_vpn: bool, is_proxy: bool, is_tor: bool, is_hosting: bool}
-     */
-    private function lookupPrivacy(string $ipAddress, array &$warnings): array
-    {
-        $reader = $this->anonymousMmdbReader();
-        if ($reader === null) {
-            $warnings[] = 'anonymous_ip_database_unavailable';
-
-            return $this->neutralPrivacyFlags();
-        }
-
-        try {
-            $record = $reader->get($ipAddress);
-            if (! is_array($record)) {
-                return $this->neutralPrivacyFlags();
-            }
-
-            return [
-                'is_vpn' => (bool) ($record['is_anonymous_vpn'] ?? false),
-                'is_proxy' => (bool) (($record['is_public_proxy'] ?? false) || ($record['is_residential_proxy'] ?? false)),
-                'is_tor' => (bool) ($record['is_tor_exit_node'] ?? false),
-                'is_hosting' => (bool) ($record['is_hosting_provider'] ?? false),
-            ];
-        } catch (Throwable $e) {
-            Log::warning('GeoLite Anonymous IP lookup falhou.', [
-                'ip' => $ipAddress,
-                'exception' => $e::class,
-                'message' => $e->getMessage(),
-            ]);
-            $warnings[] = 'anonymous_ip_lookup_failed';
-
-            return $this->neutralPrivacyFlags();
-        }
-    }
-
-    /**
-     * @return array{is_vpn: bool, is_proxy: bool, is_tor: bool, is_hosting: bool}
-     */
-    private function neutralPrivacyFlags(): array
-    {
-        return [
-            'is_vpn' => false,
-            'is_proxy' => false,
-            'is_tor' => false,
-            'is_hosting' => false,
-        ];
-    }
-
-    private function anonymousMmdbReader(): ?MmdbReader
-    {
-        if ($this->anonymousMmdbReaderFailed) {
-            return null;
-        }
-
-        if ($this->anonymousMmdbReader instanceof MmdbReader) {
-            return $this->anonymousMmdbReader;
-        }
-
-        $path = (string) config('geoip.databases.anonymous_ip.path');
-        if ($path === '' || ! is_readable($path)) {
-            $this->anonymousMmdbReaderFailed = true;
-
-            return null;
-        }
-
-        try {
-            $this->anonymousMmdbReader = new MmdbReader($path);
-
-            return $this->anonymousMmdbReader;
-        } catch (InvalidDatabaseException $e) {
-            Log::warning('GeoLite Anonymous IP .mmdb inválido ou corrompido.', ['path' => $path, 'message' => $e->getMessage()]);
-            $this->anonymousMmdbReaderFailed = true;
-
-            return null;
-        } catch (Throwable $e) {
-            Log::warning('GeoLite Anonymous IP reader não pôde ser aberto.', ['path' => $path, 'message' => $e->getMessage()]);
-            $this->anonymousMmdbReaderFailed = true;
-
-            return null;
-        }
     }
 
     /**

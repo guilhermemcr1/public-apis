@@ -10,7 +10,7 @@ use OpenApi\Attributes as OA;
     schema: 'GetIpMeta',
     properties: [
         new OA\Property(property: 'api', type: 'string', example: 'getip'),
-        new OA\Property(property: 'api_version', type: 'string', example: '1.5.0'),
+        new OA\Property(property: 'api_version', type: 'string', example: '1.6.0'),
         new OA\Property(property: 'timestamp', type: 'string', description: 'ISO 8601 com offset do servidor (APP_TIMEZONE)'),
         new OA\Property(property: 'server_timezone', type: 'string', example: 'America/Sao_Paulo'),
         new OA\Property(

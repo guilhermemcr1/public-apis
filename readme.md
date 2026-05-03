@@ -24,7 +24,7 @@ Aqui você encontra um índice central com as APIs disponíveis. Para ver como u
 
 ## APIs disponíveis
 
-- `[getip](./apis/getip/README.md)` (**v1.5.0**): texto ou JSON com **`response_code`** e **`meta.server_timezone`**; filtros `ipv4` / `ipv6`; **`geo`** opcional (`minimal` ou **`geo=full`**) + **`geo.isp`** + **`geo.privacy`** quando os `.mmdb` MaxMind estão instalados
+- `[getip](./apis/getip/README.md)` (**v1.6.0**): texto ou JSON com **`response_code`** e **`meta.server_timezone`**; filtros `ipv4` / `ipv6`; **`geo`** opcional (`minimal` ou **`geo=full`**) + **`geo.isp`** quando os `.mmdb` GeoLite2 estão instalados
 - `[getuuid](./apis/getuuid/README.md)`: gera UUID válido com suporte às versões 4 e 7
 
 ## Estratégia operacional — GeoLite2 (getip + `geo`)
@@ -34,7 +34,7 @@ Objetivo: manter lookups **rápidos e locais** usando arquivos **`.mmdb`** (sem 
 | Passo | Ação |
 |--------|------|
 | Credenciais | Definir `MAXMIND_LICENSE_KEY` no `.env` da app Laravel ([detalhes MaxMind](https://dev.maxmind.com/geoip/updating-databases/)). |
-| Primeira instalação | Na pasta `laravel/`: `php artisan geoip:update` (baixa **GeoLite2-City**, **GeoLite2-ASN** e **GeoLite2-Anonymous-IP** para `storage/app/geoip/`). |
+| Primeira instalação | Na pasta `laravel/`: `php artisan geoip:update` (baixa **GeoLite2-City** e **GeoLite2-ASN** para `storage/app/geoip/`). |
 | Atualizações | Scheduler Laravel: `geoip:update` semanal (domingo 04:30) quando `GEOIP_SCHEDULE_ENABLED=true`; em produção o Cron deve executar `php artisan schedule:run` com a periodicidade habitual (ex.: a cada minuto). Desative o agendamento se preferir só atualização manual. |
 | Deploy | Após alterar `.env`: `php artisan config:cache`. Os `.mmdb` não vão para o Git (volume ou comando pós-deploy). |
 | Compliance | Respeitar [termos/atribuição GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-data) nos materiais públicos que mencionem os dados. |

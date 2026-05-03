@@ -73,7 +73,6 @@ final class GetIpController
             $geoPayload = [
                 'location' => $geoResult['location'],
                 'isp' => $geoResult['isp'],
-                'privacy' => $geoResult['privacy'],
             ];
             $geoMeta = [];
             if ($geoResult['warnings'] !== []) {

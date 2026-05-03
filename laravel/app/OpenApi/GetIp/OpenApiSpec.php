@@ -6,10 +6,10 @@ use OpenApi\Attributes as OA;
 
 #[OA\Info(
     title: 'APIs Públicas - Get IP',
-    version: '1.5.0',
-    description: 'Detecção do IP público. JSON inclui response_code e meta.server_timezone. geo (format=json): minimal (padrão) ou geo=full para City completa; blocos isp e privacy (GeoLite2). Operação: apis/getip/README.md.'
+    version: '1.6.0',
+    description: 'Detecção do IP público. JSON inclui response_code e meta.server_timezone. geo (format=json): minimal (padrão) ou geo=full para City completa; geo.isp (GeoLite2 ASN). Operação: apis/getip/README.md.'
 )]
-#[OA\Tag(name: 'Get IP', description: 'IP público; geo GeoLite2 (minimal/full); isp (ASN + organização); privacy (Anonymous IP).')]
+#[OA\Tag(name: 'Get IP', description: 'IP público; geo GeoLite2 (minimal/full); isp (ASN + organização).')]
 #[OA\Server(
     url: 'https://api.galarca.dev',
     description: 'Servidor de Produção'
@@ -24,7 +24,7 @@ use OpenApi\Attributes as OA;
         new OA\QueryParameter(name: 'ipv6', description: 'Filtra apenas IPv6', required: false, schema: new OA\Schema(type: 'boolean')),
         new OA\QueryParameter(
             name: 'geo',
-            description: 'Sem geo: omita o parâmetro. Truthy/flag/minimal: país, estado, cidade, CEP, timezone + isp + privacy. full: City completa (continent, coordinates, subdivision…). Exige format=json.',
+            description: 'Sem geo: omita o parâmetro. Truthy/flag/minimal: país, estado, cidade, CEP, timezone + isp. full: City completa (continent, coordinates, subdivision…). Exige format=json.',
             required: false,
             schema: new OA\Schema(type: 'string', nullable: true)
         ),

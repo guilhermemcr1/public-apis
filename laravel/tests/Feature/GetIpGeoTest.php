@@ -53,12 +53,6 @@ final class GetIpGeoTest extends TestCase
                         'asn' => 64_500,
                         'organization' => 'Example ISP',
                     ],
-                    'privacy' => [
-                        'is_vpn' => false,
-                        'is_proxy' => false,
-                        'is_tor' => false,
-                        'is_hosting' => false,
-                    ],
                     'warnings' => [],
                 ]);
         });
@@ -72,7 +66,7 @@ final class GetIpGeoTest extends TestCase
             ->assertJsonPath('geo.location.state.iso_code', 'SP')
             ->assertJsonPath('geo.isp.asn', 64_500)
             ->assertJsonPath('geo.isp.organization', 'Example ISP')
-            ->assertJsonPath('geo.privacy.is_vpn', false)
+            ->assertJsonMissingPath('geo.privacy')
             ->assertJsonMissingPath('geo.location.continent')
             ->assertJsonMissingPath('meta.geo_warnings');
     }
@@ -94,12 +88,6 @@ final class GetIpGeoTest extends TestCase
                         'timezone' => 'America/Los_Angeles',
                     ],
                     'isp' => ['asn' => 15169, 'organization' => 'Google LLC'],
-                    'privacy' => [
-                        'is_vpn' => false,
-                        'is_proxy' => false,
-                        'is_tor' => false,
-                        'is_hosting' => false,
-                    ],
                     'warnings' => [],
                 ]);
         });
@@ -110,7 +98,8 @@ final class GetIpGeoTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('geo.location.continent.code', 'NA')
             ->assertJsonPath('geo.location.subdivision.iso_code', 'CA')
-            ->assertJsonMissingPath('geo.location.state');
+            ->assertJsonMissingPath('geo.location.state')
+            ->assertJsonMissingPath('geo.privacy');
 
         self::assertEqualsWithDelta(
             34.0,
@@ -127,38 +116,8 @@ final class GetIpGeoTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('geo.location', null)
             ->assertJsonPath('geo.isp', null)
-            ->assertJsonPath('geo.privacy.is_vpn', false)
-            ->assertJsonPath('geo.privacy.is_tor', false)
+            ->assertJsonMissingPath('geo.privacy')
             ->assertJsonPath('private', true);
-    }
-
-    public function test_geo_privacy_flags_are_passed_through(): void
-    {
-        $this->mock(GeoIpLookupContract::class, function ($mock): void {
-            $mock->shouldReceive('lookup')
-                ->once()
-                ->with('198.51.100.22', 'minimal')
-                ->andReturn([
-                    'location' => null,
-                    'isp' => null,
-                    'privacy' => [
-                        'is_vpn' => true,
-                        'is_proxy' => true,
-                        'is_tor' => false,
-                        'is_hosting' => true,
-                    ],
-                    'warnings' => [],
-                ]);
-        });
-
-        $response = $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.22'])
-            ->get('/getip?format=json&geo=1');
-
-        $response->assertOk()
-            ->assertJsonPath('geo.privacy.is_vpn', true)
-            ->assertJsonPath('geo.privacy.is_proxy', true)
-            ->assertJsonPath('geo.privacy.is_tor', false)
-            ->assertJsonPath('geo.privacy.is_hosting', true);
     }
 
     public function test_geo_warnings_surface_in_meta_when_present(): void
@@ -170,12 +129,6 @@ final class GetIpGeoTest extends TestCase
                 ->andReturn([
                     'location' => null,
                     'isp' => null,
-                    'privacy' => [
-                        'is_vpn' => false,
-                        'is_proxy' => false,
-                        'is_tor' => false,
-                        'is_hosting' => false,
-                    ],
                     'warnings' => ['city_database_unavailable'],
                 ]);
         });

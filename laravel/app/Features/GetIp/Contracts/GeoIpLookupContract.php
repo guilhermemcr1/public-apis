@@ -11,7 +11,6 @@ interface GeoIpLookupContract
      * @return array{
      *     location: array<string, mixed>|null,
      *     isp: array<string, mixed>|null,
-     *     privacy: array{is_vpn: bool, is_proxy: bool, is_tor: bool, is_hosting: bool},
      *     warnings: list<string>
      * }
      */

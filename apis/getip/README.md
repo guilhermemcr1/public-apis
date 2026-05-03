@@ -1,10 +1,10 @@
 # API `getip`
 
-Documentação da API pública de detecção de IP (**versão atual da API: 1.5.0** — campo `meta.api_version` nas respostas JSON).
+Documentação da API pública de detecção de IP (**versão atual da API: 1.6.0** — campo `meta.api_version` nas respostas JSON).
 
 **Contrato JSON:** todo retorno com `format=json` inclui **`response_code`** no objeto raiz (espelha o HTTP: `200`, `400`, etc.). Erros usam **`response_code`** — o campo antigo `status` no corpo foi **removido**. **`meta.timestamp`** segue ISO8601 com o fuso configurado na app Laravel (**`APP_TIMEZONE`**); **`meta.server_timezone`** indica o identificador IANA usado (ex.: `America/Sao_Paulo`).
 
-Além do IP em texto ou JSON simples, você pode pedir **`geo`** (GeoLite2 City em modo **minimal** ou **full**, base **ASN** exposta como **`geo.isp`**, e **Anonymous IP** em **`geo.privacy`**) — ver parâmetros abaixo e **Estratégia operacional**.
+Além do IP em texto ou JSON simples, você pode pedir **`geo`** (GeoLite2 City em modo **minimal** ou **full**, base **ASN** exposta como **`geo.isp`**) — ver parâmetros abaixo e **Estratégia operacional**.
 
 ## Base URL
 
@@ -25,22 +25,13 @@ Retorna o IP público detectado do cliente (cabeçalhos como `CF-Connecting-IP`,
 #### Query params suportados
 
 - `format=json`: retorna payload JSON (com `response_code`, `meta.timestamp`, `meta.server_timezone`).
-- `geo`: **só com `format=json`**. Omitido = sem bloco `geo`. Valores **truthy**, flag **`?geo`** sem valor, ou `minimal` / `min`: **localização minimal** (país, estado, cidade, CEP, timezone) + **`geo.isp`** + **`geo.privacy`**. **`geo=full`**: mesma estrutura enriquecida de City (**continent**, **subdivision**, **coordinates**, EU em país, etc.) + **isp** + **privacy**. **`geo=false`** (ou `0` / `no` / `off`) desativa.
+- `geo`: **só com `format=json`**. Omitido = sem bloco `geo`. Valores **truthy**, flag **`?geo`** sem valor, ou `minimal` / `min`: **localização minimal** (país, estado, cidade, CEP, timezone) + **`geo.isp`**. **`geo=full`**: mesma estrutura enriquecida de City (**continent**, **subdivision**, **coordinates**, EU em país, etc.) + **isp**. **`geo=false`** (ou `0` / `no` / `off`) desativa.
 - `ipv4`: exige resposta IPv4
 - `ipv6`: exige resposta IPv6
 
-**Comportamento de `geo`:** sem bases `.mmdb`, IPs privados/reservados ou registro ausente na MaxMind, `geo.location` e/ou `geo.isp` podem vir `null`. **`geo.privacy`** é sempre incluído; sem base Anonymous IP ou com falha de lookup, todos os flags ficam `false` e pode haver `meta.geo_warnings` (ex.: `anonymous_ip_database_unavailable`). Aviso **`isp_database_unavailable`** substitui o antigo nome ASN quando a base ISP/ASN não está disponível.
+**Comportamento de `geo`:** sem bases `.mmdb`, IPs privados/reservados ou registro ausente na MaxMind, `geo.location` e/ou `geo.isp` podem vir `null`. Avisos opcionais em **`meta.geo_warnings`** (ex.: `city_database_unavailable`, **`isp_database_unavailable`** quando a base ASN não está disponível, `city_lookup_failed`, `isp_lookup_failed`).
 
-**Semântica de `geo.privacy` (campos MaxMind agregados):**
-
-| Campo API | Origem GeoLite2 Anonymous IP |
-|-----------|-------------------------------|
-| `is_vpn` | `is_anonymous_vpn` |
-| `is_proxy` | `is_public_proxy` **ou** `is_residential_proxy` |
-| `is_tor` | `is_tor_exit_node` |
-| `is_hosting` | `is_hosting_provider` |
-
-Mensagens operacionais opcionais: `meta.geo_warnings`. Deploy e atualização: secção **Estratégia operacional** abaixo.
+Deploy e atualização: secção **Estratégia operacional** abaixo.
 
 #### Respostas esperadas
 
@@ -60,21 +51,21 @@ As bases GeoLite2 são distribuídas como binários **MaxMind DB**. A API usa le
 
 | Variável | Função |
 |----------|--------|
-| `MAXMIND_LICENSE_KEY` | Obrigatória para `php artisan geoip:update` baixar City + ASN. |
+| `MAXMIND_LICENSE_KEY` | Obrigatória para `php artisan geoip:update` baixar City e ASN. |
 | `GEOIP_SCHEDULE_ENABLED` | `true` (padrão): agenda atualização semanal via Laravel Scheduler. `false`: apenas atualização manual. |
-| `GEOIP_CITY_DATABASE_PATH` / `GEOIP_ASN_DATABASE_PATH` / `GEOIP_ANONYMOUS_IP_DATABASE_PATH` | Opcional; padrões em `storage/app/geoip/` (`GeoLite2-City.mmdb`, `GeoLite2-ASN.mmdb`, `GeoLite2-Anonymous-IP.mmdb`). |
-| `GEOIP_CITY_EDITION_ID` / `GEOIP_ASN_EDITION_ID` / `GEOIP_ANONYMOUS_IP_EDITION_ID` | Opcional; padrões `GeoLite2-City`, `GeoLite2-ASN`, `GeoLite2-Anonymous-IP`. |
+| `GEOIP_CITY_DATABASE_PATH` / `GEOIP_ASN_DATABASE_PATH` | Opcional; padrões em `storage/app/geoip/` (`GeoLite2-City.mmdb`, `GeoLite2-ASN.mmdb`). |
+| `GEOIP_CITY_EDITION_ID` / `GEOIP_ASN_EDITION_ID` | Opcional; padrões `GeoLite2-City`, `GeoLite2-ASN`. |
 
 ### Fluxo recomendado
 
-1. **Bootstrap / primeiro deploy:** `php artisan geoip:update` na pasta `laravel/` (rede outbound HTTPS + `tar` disponível no servidor). O comando baixa **três** editions configuradas em `config/geoip.php` (City, ASN, Anonymous IP).
+1. **Bootstrap / primeiro deploy:** `php artisan geoip:update` na pasta `laravel/` (rede outbound HTTPS + `tar` disponível no servidor). Baixa **GeoLite2-City** e **GeoLite2-ASN**.
 2. **Rotina:** Cron em produção executando `php artisan schedule:run` (ex.: a cada minuto). Com `GEOIP_SCHEDULE_ENABLED=true`, o comando `geoip:update` roda **semanalmente** (domingo 04:30, timezone da app).
-3. **Manual:** `php artisan geoip:update --edition=GeoLite2-City` (ou `GeoLite2-ASN`) para atualizar só uma base.
+3. **Manual:** `php artisan geoip:update --edition=GeoLite2-City` ou `--edition=GeoLite2-ASN` para atualizar só uma base.
 4. **Pós-deploy:** `php artisan config:cache` após mudar `.env`.
 
 ### Checklist rápido
 
-- [ ] Três `.mmdb` relevantes presentes em `storage/app/geoip/` (City, ASN, Anonymous IP), ou aceitar que `geo` omitirá dados conforme disponibilidade.
+- [ ] **City** e **ASN** `.mmdb` em `storage/app/geoip/` (conta GeoLite gratuita).
 - [ ] `MAXMIND_LICENSE_KEY` definida em produção (nunca commitada).
 - [ ] Cron com `schedule:run` ativo se quiser atualização automática.
 - [ ] Espaço em disco monitorado (City é o arquivo maior).
@@ -98,7 +89,7 @@ As bases GeoLite2 são distribuídas como binários **MaxMind DB**. A API usa le
   "private": false,
   "meta": {
     "api": "IP Detection API",
-    "api_version": "1.5.0",
+    "api_version": "1.6.0",
     "timestamp": "2026-04-29T17:30:00-03:00",
     "server_timezone": "America/Sao_Paulo"
   }
@@ -117,7 +108,7 @@ Por padrão (`geo`, `geo=1`, `geo=minimal`, flag `?geo`): país, estado (`state`
   "private": false,
   "meta": {
     "api": "IP Detection API",
-    "api_version": "1.5.0",
+    "api_version": "1.6.0",
     "timestamp": "2026-05-01T09:00:00-03:00",
     "server_timezone": "America/Sao_Paulo"
   },
@@ -132,12 +123,6 @@ Por padrão (`geo`, `geo=1`, `geo=minimal`, flag `?geo`): país, estado (`state`
     "isp": {
       "asn": 64500,
       "organization": "Example Telecom"
-    },
-    "privacy": {
-      "is_vpn": false,
-      "is_proxy": false,
-      "is_tor": false,
-      "is_hosting": false
     }
   }
 }
@@ -153,7 +138,7 @@ Por padrão (`geo`, `geo=1`, `geo=minimal`, flag `?geo`): país, estado (`state`
   "private": false,
   "meta": {
     "api": "IP Detection API",
-    "api_version": "1.5.0",
+    "api_version": "1.6.0",
     "timestamp": "2026-05-01T09:00:00-03:00",
     "server_timezone": "America/Sao_Paulo"
   },
@@ -174,12 +159,6 @@ Por padrão (`geo`, `geo=1`, `geo=minimal`, flag `?geo`): país, estado (`state`
     "isp": {
       "asn": 64500,
       "organization": "Example Telecom"
-    },
-    "privacy": {
-      "is_vpn": false,
-      "is_proxy": false,
-      "is_tor": false,
-      "is_hosting": false
     }
   }
 }

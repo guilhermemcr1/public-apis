@@ -17,7 +17,6 @@ use OpenApi\Attributes as OA;
             description: 'minimal: country, state, city, postal_code, timezone; full: inclui continent_code, subdivisions, latitude/longitude…'
         ),
         new OA\Property(property: 'isp', ref: '#/components/schemas/GetIpIsp', nullable: true),
-        new OA\Property(property: 'privacy', ref: '#/components/schemas/GetIpPrivacy'),
     ],
     type: 'object'
 )]

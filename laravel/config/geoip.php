@@ -31,10 +31,6 @@ return [
             'edition_id' => env('GEOIP_ASN_EDITION_ID', 'GeoLite2-ASN'),
             'path' => env('GEOIP_ASN_DATABASE_PATH', storage_path('app/geoip/GeoLite2-ASN.mmdb')),
         ],
-        'anonymous_ip' => [
-            'edition_id' => env('GEOIP_ANONYMOUS_IP_EDITION_ID', 'GeoLite2-Anonymous-IP'),
-            'path' => env('GEOIP_ANONYMOUS_IP_DATABASE_PATH', storage_path('app/geoip/GeoLite2-Anonymous-IP.mmdb')),
-        ],
     ],
 
     /*

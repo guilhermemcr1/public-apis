@@ -13,7 +13,7 @@ return [
         [
             'slug' => 'getip',
             'name' => 'Get IP',
-            'description' => 'JSON com response_code e geo opcional GeoLite2 (minimal ou geo=full: City + isp + privacy). format=json.',
+            'description' => 'JSON com response_code e geo opcional GeoLite2 (minimal ou geo=full: City + isp). format=json.',
             'endpoint' => '/getip',
         ],
         [

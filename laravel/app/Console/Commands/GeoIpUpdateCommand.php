@@ -15,7 +15,7 @@ final class GeoIpUpdateCommand extends Command
 {
     protected $signature = 'geoip:update {--edition=* : Limitar a editions específicas (ex.: GeoLite2-City)}';
 
-    protected $description = 'Baixa e instala/atualiza bases GeoLite2 (.mmdb) via API de download MaxMind';
+    protected $description = 'Baixa e instala/atualiza bases GeoLite2 City e ASN (.mmdb) via API de download MaxMind';
 
     public function handle(): int
     {
@@ -30,18 +30,30 @@ final class GeoIpUpdateCommand extends Command
         $databases = config('geoip.databases', []);
         $onlyEditions = $this->option('edition');
         $failed = false;
+        $ran = false;
 
         foreach ($databases as $label => $cfg) {
-            $editionId = $cfg['edition_id'];
+            $editionId = trim((string) $cfg['edition_id']);
+            if ($editionId === '') {
+                continue;
+            }
+
             if ($onlyEditions !== [] && ! in_array($editionId, $onlyEditions, true)) {
                 continue;
             }
 
+            $ran = true;
             $this->info("Atualizando {$editionId} ({$label})…");
 
             if (! $this->downloadAndInstallEdition($editionId, $cfg['path'], $licenseKey)) {
                 $failed = true;
             }
+        }
+
+        if (! $ran) {
+            $this->warn('Nenhuma base foi processada (edition_id vazio ou --edition não corresponde a nenhuma entrada).');
+
+            return self::FAILURE;
         }
 
         return $failed ? self::FAILURE : self::SUCCESS;
