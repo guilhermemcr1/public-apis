@@ -1,9 +1,9 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Galarca Public APIs - Get IP",
-        "description": "Documentação oficial da API pública de detecção de IP",
-        "version": "1.0.0"
+        "title": "APIs Públicas - Get IP",
+        "description": "Detecção do IP público. JSON inclui response_code e meta.server_timezone. geo (format=json): minimal (padrão) ou geo=full para City completa; blocos isp e privacy (GeoLite2). Operação: apis/getip/README.md.",
+        "version": "1.5.0"
     },
     "paths": {
         "/getip": {
@@ -11,7 +11,7 @@
                 "tags": [
                     "Get IP"
                 ],
-                "summary": "Retorna o IP público do cliente",
+                "summary": "Retorna o IP público do cliente (JSON com response_code; geo minimal ou full)",
                 "operationId": "30755c07e3fffafef6a415fd1475c77f",
                 "parameters": [
                     {
@@ -43,20 +43,95 @@
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    {
+                        "name": "geo",
+                        "in": "query",
+                        "description": "Sem geo: omita o parâmetro. Truthy/flag/minimal: país, estado, cidade, CEP, timezone + isp + privacy. full: City completa (continent, coordinates, subdivision…). Exige format=json.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Resposta em texto ou JSON"
+                        "description": "Sucesso. Com format=json: schema GetIpJsonSuccess. Sem format=json: apenas o IP em text/plain.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "203.0.113.42"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIpJsonSuccess"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Parâmetros inválidos"
+                        "description": "Parâmetros inválidos. Com format=json: response_code + error (sem campo status). Sem JSON: texto Error N: mensagem.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Error 400: O parâmetro geo exige format=json."
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIpJsonError"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Tipo de IP solicitado não encontrado"
+                        "description": "IPv4 ou IPv6 solicitado não disponível para o cliente atual.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIpJsonError"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Apenas GET (e OPTIONS para CORS).",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIpJsonError"
+                                }
+                            }
+                        }
                     },
                     "429": {
-                        "description": "Rate limit atingido"
+                        "description": "Rate limit atingido.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIpJsonError"
+                                }
+                            }
+                        }
                     }
                 },
                 "servers": [
@@ -68,10 +143,153 @@
             }
         }
     },
+    "components": {
+        "schemas": {
+            "GetIpGeoBlock": {
+                "properties": {
+                    "location": {
+                        "description": "minimal: country, state, city, postal_code, timezone; full: inclui continent_code, subdivisions, latitude/longitude…",
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true
+                    },
+                    "isp": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/GetIpIsp"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "privacy": {
+                        "$ref": "#/components/schemas/GetIpPrivacy"
+                    }
+                },
+                "type": "object"
+            },
+            "GetIpIsp": {
+                "properties": {
+                    "asn": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "organization": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object",
+                "nullable": true
+            },
+            "GetIpJsonError": {
+                "required": [
+                    "response_code",
+                    "error"
+                ],
+                "properties": {
+                    "response_code": {
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "GetIpJsonSuccess": {
+                "required": [
+                    "response_code",
+                    "ip",
+                    "version",
+                    "private",
+                    "meta"
+                ],
+                "properties": {
+                    "response_code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "ip": {
+                        "type": "string",
+                        "example": "203.0.113.42"
+                    },
+                    "version": {
+                        "type": "string",
+                        "enum": [
+                            "v4",
+                            "v6"
+                        ]
+                    },
+                    "private": {
+                        "type": "boolean"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/GetIpMeta"
+                    },
+                    "geo": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/GetIpGeoBlock"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "GetIpMeta": {
+                "properties": {
+                    "api": {
+                        "type": "string",
+                        "example": "getip"
+                    },
+                    "api_version": {
+                        "type": "string",
+                        "example": "1.5.0"
+                    },
+                    "timestamp": {
+                        "description": "ISO 8601 com offset do servidor (APP_TIMEZONE)",
+                        "type": "string"
+                    },
+                    "server_timezone": {
+                        "type": "string",
+                        "example": "America/Sao_Paulo"
+                    },
+                    "geo_warnings": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "isp_database_unavailable"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "GetIpPrivacy": {
+                "properties": {
+                    "is_vpn": {
+                        "type": "boolean"
+                    },
+                    "is_proxy": {
+                        "type": "boolean"
+                    },
+                    "is_tor": {
+                        "type": "boolean"
+                    },
+                    "is_hosting": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
     "tags": [
         {
             "name": "Get IP",
-            "description": "Get IP"
+            "description": "IP público; geo GeoLite2 (minimal/full); isp (ASN + organização); privacy (Anonymous IP)."
         }
     ]
 }

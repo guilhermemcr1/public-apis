@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\GetIp\Http\Controllers;
 
+use App\Features\GetIp\Contracts\GeoIpLookupContract;
 use App\Features\GetIp\Services\ClientIpDetector;
 use App\Features\GetIp\Services\GetIpResponseFactory;
 use App\Features\GetIp\Support\GetIpQueryValidator;
@@ -16,8 +17,8 @@ final class GetIpController
         private readonly ClientIpDetector $ipDetector,
         private readonly GetIpQueryValidator $queryValidator,
         private readonly GetIpResponseFactory $responseFactory,
-    ) {
-    }
+        private readonly GeoIpLookupContract $geoLookup,
+    ) {}
 
     public function __invoke(Request $request): Response
     {
@@ -39,6 +40,14 @@ final class GetIpController
             );
         }
 
+        if ($query->wantsGeo() && ! $query->wantsJson()) {
+            return $this->responseFactory->error(
+                'O parâmetro geo exige format=json.',
+                400,
+                false
+            );
+        }
+
         $clientIp = $this->ipDetector->detect($request);
         $version = $this->getIpVersion($clientIp);
 
@@ -56,6 +65,22 @@ final class GetIpController
                 404,
                 $query->wantsJson()
             );
+        }
+
+        if ($query->wantsGeo() && $query->wantsJson()) {
+            $locationDetail = $query->wantsGeoFull() ? 'full' : 'minimal';
+            $geoResult = $this->geoLookup->lookup($clientIp, $locationDetail);
+            $geoPayload = [
+                'location' => $geoResult['location'],
+                'isp' => $geoResult['isp'],
+                'privacy' => $geoResult['privacy'],
+            ];
+            $geoMeta = [];
+            if ($geoResult['warnings'] !== []) {
+                $geoMeta['geo_warnings'] = $geoResult['warnings'];
+            }
+
+            return $this->responseFactory->success($clientIp, $version, true, [], $geoPayload, $geoMeta);
         }
 
         return $this->responseFactory->success($clientIp, $version, $query->wantsJson());

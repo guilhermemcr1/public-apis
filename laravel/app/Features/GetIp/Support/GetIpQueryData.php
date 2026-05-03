@@ -10,11 +10,21 @@ final readonly class GetIpQueryData
         public string $format,
         public bool $wantV4,
         public bool $wantV6,
-    ) {
-    }
+        public string $geoMode,
+    ) {}
 
     public function wantsJson(): bool
     {
         return $this->format === 'json';
+    }
+
+    public function wantsGeo(): bool
+    {
+        return $this->geoMode !== 'off';
+    }
+
+    public function wantsGeoFull(): bool
+    {
+        return $this->geoMode === 'full';
     }
 }

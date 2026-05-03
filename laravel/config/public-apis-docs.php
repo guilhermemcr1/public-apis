@@ -13,7 +13,7 @@ return [
         [
             'slug' => 'getip',
             'name' => 'Get IP',
-            'description' => 'Detecta o endereço IP do cliente, com suporte a texto ou JSON e filtros ipv4/ipv6.',
+            'description' => 'JSON com response_code e geo opcional GeoLite2 (minimal ou geo=full: City + isp + privacy). format=json.',
             'endpoint' => '/getip',
         ],
         [

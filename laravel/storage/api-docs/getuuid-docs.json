@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Galarca Public APIs - Get UUID",
+        "title": "APIs Públicas - Get UUID",
         "description": "Documentação oficial da API pública de geração de UUID",
         "version": "1.0.0"
     },

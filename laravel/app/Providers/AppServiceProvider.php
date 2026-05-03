@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Features\GetIp\Contracts\GeoIpLookupContract;
+use App\Features\GetIp\Services\MaxMindGeoLiteLookup;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(GeoIpLookupContract::class, MaxMindGeoLiteLookup::class);
     }
 
     /**
@@ -36,8 +38,8 @@ class AppServiceProvider extends ServiceProvider
                     if ($isJson) {
                         return response()->json(
                             [
+                                'response_code' => 429,
                                 'error' => $message,
-                                'status' => 429,
                             ],
                             429,
                             $this->baseHeaders($headers + ['Retry-After' => $retryAfter]),
@@ -79,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param array<string, mixed> $headers
+     * @param  array<string, mixed>  $headers
      * @return array<string, string>
      */
     private function baseHeaders(array $headers = []): array

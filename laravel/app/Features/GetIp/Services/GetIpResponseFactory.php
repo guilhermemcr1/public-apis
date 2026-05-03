@@ -10,22 +10,42 @@ use Illuminate\Http\Response;
 final class GetIpResponseFactory
 {
     /**
-     * @param array<string, string|int> $extraHeaders
+     * @param  array<string, mixed>  $geoMeta  merged into meta (ex.: geo_warnings)
+     * @param  array<string, string|int>  $extraHeaders
      */
-    public function success(string $ip, ?int $version, bool $json, array $extraHeaders = []): Response|JsonResponse
-    {
+    public function success(
+        string $ip,
+        ?int $version,
+        bool $json,
+        array $extraHeaders = [],
+        ?array $geo = null,
+        array $geoMeta = [],
+    ): Response|JsonResponse {
         if ($json) {
+            $tz = (string) config('app.timezone');
+            $meta = [
+                'api' => (string) config('getip.api_name'),
+                'api_version' => (string) config('getip.api_version'),
+                'timestamp' => now($tz)->toIso8601String(),
+                'server_timezone' => $tz,
+            ];
+            if ($geoMeta !== []) {
+                $meta = array_merge($meta, $geoMeta);
+            }
+
+            $payload = [
+                'response_code' => 200,
+                'ip' => $ip,
+                'version' => 'v'.$version,
+                'private' => $this->isPrivateIp($ip),
+                'meta' => $meta,
+            ];
+            if ($geo !== null) {
+                $payload['geo'] = $geo;
+            }
+
             return $this->json(
-                [
-                    'ip' => $ip,
-                    'version' => 'v' . $version,
-                    'private' => $this->isPrivateIp($ip),
-                    'meta' => [
-                        'api' => (string) config('getip.api_name'),
-                        'api_version' => (string) config('getip.api_version'),
-                        'timestamp' => now()->toIso8601String(),
-                    ],
-                ],
+                $payload,
                 200,
                 $extraHeaders
             );
@@ -35,15 +55,15 @@ final class GetIpResponseFactory
     }
 
     /**
-     * @param array<string, string|int> $extraHeaders
+     * @param  array<string, string|int>  $extraHeaders
      */
     public function error(string $message, int $status, bool $json, array $extraHeaders = []): Response|JsonResponse
     {
         if ($json) {
             return $this->json(
                 [
+                    'response_code' => $status,
                     'error' => $message,
-                    'status' => $status,
                 ],
                 $status,
                 $extraHeaders
@@ -54,7 +74,7 @@ final class GetIpResponseFactory
     }
 
     /**
-     * @param array<string, string|int> $extraHeaders
+     * @param  array<string, string|int>  $extraHeaders
      */
     public function noContent(array $extraHeaders = []): Response
     {
@@ -62,8 +82,8 @@ final class GetIpResponseFactory
     }
 
     /**
-     * @param array<string, mixed> $payload
-     * @param array<string, string|int> $extraHeaders
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, string|int>  $extraHeaders
      */
     private function json(array $payload, int $status, array $extraHeaders = []): JsonResponse
     {
@@ -78,7 +98,7 @@ final class GetIpResponseFactory
     }
 
     /**
-     * @param array<string, string|int> $extraHeaders
+     * @param  array<string, string|int>  $extraHeaders
      */
     private function text(string $content, int $status, array $extraHeaders = []): Response
     {
@@ -91,9 +111,8 @@ final class GetIpResponseFactory
     /**
      * @template T of Response|JsonResponse
      *
-     * @param T $response
-     * @param array<string, string|int> $extraHeaders
-     *
+     * @param  T  $response
+     * @param  array<string, string|int>  $extraHeaders
      * @return T
      */
     private function withBaseHeaders(Response|JsonResponse $response, array $extraHeaders): Response|JsonResponse

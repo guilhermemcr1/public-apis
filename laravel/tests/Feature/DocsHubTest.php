@@ -15,6 +15,7 @@ final class DocsHubTest extends TestCase
         $response->assertOk()
             ->assertSee('Documentação das APIs Públicas', false)
             ->assertSee('Get IP', false)
+            ->assertSee('GeoLite2', false)
             ->assertSee('Get UUID', false)
             ->assertSee('/api/documentation/getip', false)
             ->assertSee('/api/documentation/getuuid', false)
