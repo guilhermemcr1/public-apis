@@ -1,0 +1,31 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.key
+*.pem
+*.mmdb
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Go build and test artifacts
+go/*.exe
+go/*.test
+go/*.out
+go/vendor/
+go/public-apis
+coverage.out
+*.prof
+*.pprof
+
+# Benchmark runs are local unless explicitly curated below
+benchmarks/results/*
+!benchmarks/results/2026-07-14_portfolio/
+!benchmarks/results/2026-07-14_portfolio/**
+!benchmarks/results/2026-07-14_php-fpm/
+!benchmarks/results/2026-07-14_php-fpm/**

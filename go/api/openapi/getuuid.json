@@ -1,0 +1,22 @@
+{
+  "openapi": "3.0.3",
+  "info": {"title": "UUID Generator API", "version": "1.0.0"},
+  "paths": {
+    "/getuuid": {
+      "get": {
+        "parameters": [{"name": "version", "in": "query", "schema": {"type": "integer", "enum": [4, 7], "default": 4}}],
+        "responses": {
+          "200": {"description": "Generated UUID", "headers": {"Cache-Control": {"schema": {"type": "string"}}}, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UUIDSuccess"}}}},
+          "400": {"description": "Invalid UUID version", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+          "405": {"description": "Method not allowed"},
+          "429": {"description": "Rate limit exceeded"}
+        }
+      },
+      "options": {"responses": {"204": {"description": "CORS preflight"}}}
+    }
+  },
+  "components": {"schemas": {
+    "UUIDSuccess": {"type": "object", "required": ["uuid", "version"], "properties": {"uuid": {"type": "string", "format": "uuid"}, "version": {"type": "integer", "enum": [4, 7]}}},
+    "Error": {"type": "object", "required": ["error", "status"], "properties": {"error": {"type": "string"}, "status": {"type": "integer"}}}
+  }}
+}

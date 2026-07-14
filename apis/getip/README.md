@@ -56,6 +56,8 @@ As bases GeoLite2 são distribuídas como binários **MaxMind DB**. A API usa le
 | `GEOIP_CITY_DATABASE_PATH` / `GEOIP_ASN_DATABASE_PATH` | Opcional; padrões em `storage/app/geoip/` (`GeoLite2-City.mmdb`, `GeoLite2-ASN.mmdb`). |
 | `GEOIP_CITY_EDITION_ID` / `GEOIP_ASN_EDITION_ID` | Opcional; padrões `GeoLite2-City`, `GeoLite2-ASN`. |
 
+No container Go, monte os mesmos arquivos em `/data/geoip` como volume somente leitura. Os caminhos podem ser alterados por `GEOIP_CITY_DATABASE_PATH` e `GEOIP_ASN_DATABASE_PATH`; nenhuma consulta remota ocorre durante requests.
+
 ### Fluxo recomendado
 
 1. **Bootstrap / primeiro deploy:** `php artisan geoip:update` na pasta `laravel/` (rede outbound HTTPS + `tar` disponível no servidor). Baixa **GeoLite2-City** e **GeoLite2-ASN**.
@@ -298,4 +300,3 @@ curl "https://api.galarca.dev/getip?format=json&geo=full"
 ## Atribuição (GeoLite2)
 
 Este produto inclui dados GeoLite2 criados pela MaxMind, disponíveis em [https://www.maxmind.com](https://www.maxmind.com).
-

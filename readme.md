@@ -6,11 +6,12 @@ Aqui você encontra um índice central com as APIs disponíveis. Para ver como u
 
 ## Sobre o repositório
 
-- Base principal em Laravel (pasta `laravel/`)
+- Rebuild principal em Go (pasta `go/`); Laravel permanece em `laravel/` como referência de contrato durante a migração
 - APIs sem autenticação até o momento
 - Rate limit por IP para evitar abuso e sobrecarga
 - Documentação separada por API em `apis/<nome-da-api>/README.md`
 - Geolocalização opcional na API **getip** (`format=json&geo` ou `geo=full`) via bases **GeoLite2** em disco (`.mmdb`); ver secção abaixo e [apis/getip/README.md](./apis/getip/README.md)
+- Benchmark reproduzível do rebuild Go comparado à referência Laravel em [benchmarks/README.md](./benchmarks/README.md)
 
 ## Endpoint principal
 
@@ -43,6 +44,22 @@ Documentação funcional completa, exemplos de payload e edge cases: **[apis/get
 
 ## Executar localmente
 
+Go:
+
+```bash
+cd go
+go run ./cmd/public-apis
+```
+
+Container Go:
+
+```bash
+docker build -f go/Dockerfile -t public-apis-go:local .
+docker run --rm -p 8080:8080 public-apis-go:local
+```
+
+Implementação Laravel de referência:
+
 ```bash
 cd laravel
 cp .env.example .env
@@ -61,8 +78,9 @@ curl "http://127.0.0.1:8000/getuuid?version=7"
 
 ## Estrutura do repositório
 
-- `laravel/`: aplicação principal em Laravel
+- `go/`: rebuild principal em Go, Dockerfile, testes e Swagger offline
+- `laravel/`: implementação Laravel mantida como referência de contrato
 - `apis/`: pasta de documentação das APIs, uma subpasta por API
 - `apis/getip/README.md`: documentação funcional completa da API getip (texto/JSON, `ipv4`/`ipv6`, opcional `geo` + GeoLite2, exemplos JS/PHP/Node, estratégia operacional)
 - `apis/getuuid/README.md`: documentação funcional completa da API getuuid (com exemplos JS, PHP e Node)
-
+- `benchmarks/`: metodologia, automação e resultados brutos do comparativo Go × Laravel

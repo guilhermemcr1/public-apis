@@ -1,0 +1,11 @@
+.git/
+.agents/
+.specify/
+specs/
+laravel/
+apis/
+*.log
+.env*
+go/*.test
+go/*.out
+go/vendor/
