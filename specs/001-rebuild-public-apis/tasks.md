@@ -139,5 +139,12 @@
 ### Security and performance gates
 
 - Do not trust forwarding headers without configured trusted proxy CIDRs.
-- Do not add a cache, database, Redis, or second container unless measurement or multi-replica deployment makes it necessary.
+- Do not add a cache, database, Redis, or additional runtime services beyond the required isolated GeoIP updater unless measurement or multi-replica deployment makes it necessary.
 - Do not release until the load test meets the p95, p99, throughput, and error-rate goals and the container runs as non-root.
+
+## Phase 7: GeoIP operations and Laravel cutover
+
+- [X] T039 Add `compose.yaml` with the Go API, pinned MaxMind `geoipupdate` sidecar, shared volume, and Docker Secrets.
+- [X] T040 Document deploy-only MaxMind secrets and the updater/reload lifecycle.
+- [X] T041 Add lock-protected GeoLite2 reload detection in Go with configurable polling.
+- [X] T042 Validate formatting, tests, race detector, vet, and Compose configuration.

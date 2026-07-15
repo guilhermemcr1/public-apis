@@ -31,6 +31,7 @@ func main() {
 	go func() { errs <- s.ListenAndServe() }()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	go watchGeoIP(ctx, cfg.Geo, logger)
 	select {
 	case err = <-errs:
 		if err != http.ErrServerClosed {
@@ -44,6 +45,26 @@ func main() {
 	defer cancel()
 	if err := s.Shutdown(shutdown); err != nil {
 		logger.Error("graceful shutdown", "error", err)
+	}
+}
+
+func watchGeoIP(ctx context.Context, lookup *geoip.Lookup, logger *slog.Logger) {
+	interval, err := time.ParseDuration(env("GEOIP_RELOAD_INTERVAL", "5m"))
+	if err != nil || interval <= 0 {
+		logger.Warn("invalid GEOIP_RELOAD_INTERVAL; automatic reload disabled", "value", os.Getenv("GEOIP_RELOAD_INTERVAL"))
+		return
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			if err := lookup.ReloadIfChanged(); err != nil {
+				logger.Warn("GeoIP database reload failed; keeping current readers", "error", err)
+			}
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 

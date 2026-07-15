@@ -2,6 +2,9 @@ package geoip
 
 import (
 	"net"
+	"os"
+	"sync"
+	"time"
 
 	geo "github.com/oschwald/geoip2-golang"
 )
@@ -12,32 +15,112 @@ type Result struct {
 	Warnings []string
 }
 
-type Lookup struct{ city, asn *geo.Reader }
+type fileStamp struct {
+	mod  time.Time
+	size int64
+}
+
+type Lookup struct {
+	mu       sync.RWMutex
+	city     *geo.Reader
+	asn      *geo.Reader
+	cityPath string
+	asnPath  string
+	cityStat fileStamp
+	asnStat  fileStamp
+}
 
 func Open(cityPath, asnPath string) *Lookup {
-	l := &Lookup{}
-	if cityPath != "" {
-		l.city, _ = geo.Open(cityPath)
-	}
-	if asnPath != "" {
-		l.asn, _ = geo.Open(asnPath)
-	}
+	l := &Lookup{cityPath: cityPath, asnPath: asnPath}
+	_ = l.reload(true)
 	return l
 }
 
 func (l *Lookup) Close() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.city != nil {
+		_ = l.city.Close()
+		l.city = nil
+	}
+	if l.asn != nil {
+		_ = l.asn.Close()
+		l.asn = nil
+	}
+}
+
+// ReloadIfChanged atomically replaces readers after changed files are readable.
+func (l *Lookup) ReloadIfChanged() error { return l.reload(false) }
+
+func (l *Lookup) reload(force bool) error {
+	cityStat, err := stat(l.cityPath)
+	if err != nil {
+		return err
+	}
+	asnStat, err := stat(l.asnPath)
+	if err != nil {
+		return err
+	}
+	l.mu.RLock()
+	changed := force || cityStat != l.cityStat || asnStat != l.asnStat
+	l.mu.RUnlock()
+	if !changed {
+		return nil
+	}
+	city, err := open(l.cityPath)
+	if err != nil {
+		return err
+	}
+	asn, err := open(l.asnPath)
+	if err != nil {
+		if city != nil {
+			_ = city.Close()
+		}
+		return err
+	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	if l.city != nil {
 		_ = l.city.Close()
 	}
 	if l.asn != nil {
 		_ = l.asn.Close()
 	}
+	l.city, l.asn = city, asn
+	l.cityStat, l.asnStat = cityStat, asnStat
+	return nil
+}
+
+func stat(path string) (fileStamp, error) {
+	if path == "" {
+		return fileStamp{}, nil
+	}
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return fileStamp{}, nil
+	}
+	if err != nil {
+		return fileStamp{}, err
+	}
+	return fileStamp{mod: info.ModTime(), size: info.Size()}, nil
+}
+
+func open(path string) (*geo.Reader, error) {
+	if path == "" {
+		return nil, nil
+	}
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, nil
+	}
+	return geo.Open(path)
 }
 
 func (l *Lookup) Lookup(ip net.IP, mode string) Result {
 	if !IsPublic(ip) {
 		return Result{}
 	}
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 	r := Result{}
 	if l.city == nil {
 		r.Warnings = append(r.Warnings, "city_database_unavailable")

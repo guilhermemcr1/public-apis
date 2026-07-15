@@ -6,6 +6,8 @@
 *.key
 *.pem
 *.mmdb
+secrets/*
+!secrets/README.md
 
 # Editors and operating systems
 .DS_Store

@@ -21,6 +21,14 @@ func TestPublicClassificationAndUnavailableData(t *testing.T) {
 	}
 }
 
+func TestReloadWithoutDatabasesIsSafe(t *testing.T) {
+	lookup := Open("", "")
+	defer lookup.Close()
+	if err := lookup.ReloadIfChanged(); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRealMMDBFixtures(t *testing.T) {
 	city, asn := os.Getenv("GEOIP_TEST_CITY"), os.Getenv("GEOIP_TEST_ASN")
 	if city == "" || asn == "" {

@@ -45,31 +45,31 @@ Deploy e atualização: secção **Estratégia operacional** abaixo.
 
 ### Por que arquivo `.mmdb` em disco
 
-As bases GeoLite2 são distribuídas como binários **MaxMind DB**. A API usa leitura local (biblioteca oficial PHP) por IP — **sem importar os dados para MySQL/PostgreSQL para cada request**, o que preserva latência e simplifica atualizações (substituir arquivos).
+As bases GeoLite2 são distribuídas como binários **MaxMind DB**. A API usa leitura local por IP — **sem importar os dados para MySQL/PostgreSQL para cada request**, o que preserva latência e simplifica atualizações.
 
-### Variáveis de ambiente (Laravel)
+### Configuração de atualização
 
 | Variável | Função |
 |----------|--------|
-| `MAXMIND_LICENSE_KEY` | Obrigatória para `php artisan geoip:update` baixar City e ASN. |
-| `GEOIP_SCHEDULE_ENABLED` | `true` (padrão): agenda atualização semanal via Laravel Scheduler. `false`: apenas atualização manual. |
-| `GEOIP_CITY_DATABASE_PATH` / `GEOIP_ASN_DATABASE_PATH` | Opcional; padrões em `storage/app/geoip/` (`GeoLite2-City.mmdb`, `GeoLite2-ASN.mmdb`). |
-| `GEOIP_CITY_EDITION_ID` / `GEOIP_ASN_EDITION_ID` | Opcional; padrões `GeoLite2-City`, `GeoLite2-ASN`. |
+| `GEOIPUPDATE_ACCOUNT_ID_FILE` / `GEOIPUPDATE_LICENSE_KEY_FILE` | Docker Secrets usados somente pelo `geoipupdate`. |
+| `GEOIPUPDATE_EDITION_IDS` | `GeoLite2-City GeoLite2-ASN`. |
+| `GEOIPUPDATE_FREQUENCY` | `72` horas no compose. |
+| `GEOIP_CITY_DATABASE_PATH` / `GEOIP_ASN_DATABASE_PATH` | Caminhos somente leitura no Go; padrões em `/data/geoip/`. |
+| `GEOIP_RELOAD_INTERVAL` | `5m` no Go; intervalo para detectar bases alteradas. |
 
-No container Go, monte os mesmos arquivos em `/data/geoip` como volume somente leitura. Os caminhos podem ser alterados por `GEOIP_CITY_DATABASE_PATH` e `GEOIP_ASN_DATABASE_PATH`; nenhuma consulta remota ocorre durante requests.
+No container Go, os arquivos são montados em `/data/geoip` como volume somente leitura; nenhuma consulta remota ocorre durante requests.
 
 ### Fluxo recomendado
 
-1. **Bootstrap / primeiro deploy:** `php artisan geoip:update` na pasta `laravel/` (rede outbound HTTPS + `tar` disponível no servidor). Baixa **GeoLite2-City** e **GeoLite2-ASN**.
-2. **Rotina:** Cron em produção executando `php artisan schedule:run` (ex.: a cada minuto). Com `GEOIP_SCHEDULE_ENABLED=true`, o comando `geoip:update` roda **semanalmente** (domingo 04:30, timezone da app).
-3. **Manual:** `php artisan geoip:update --edition=GeoLite2-City` ou `--edition=GeoLite2-ASN` para atualizar só uma base.
-4. **Pós-deploy:** `php artisan config:cache` após mudar `.env`.
+1. **Bootstrap:** criar os dois arquivos em `secrets/` conforme [secrets/README.md](../../secrets/README.md).
+2. **Rotina:** executar `docker compose up -d --build`; o atualizador oficial mantém o volume atualizado.
+3. **Recarga:** o Go valida e troca os leitores automaticamente, mantendo a versão anterior quando uma atualização falha.
 
 ### Checklist rápido
 
-- [ ] **City** e **ASN** `.mmdb` em `storage/app/geoip/` (conta GeoLite gratuita).
-- [ ] `MAXMIND_LICENSE_KEY` definida em produção (nunca commitada).
-- [ ] Cron com `schedule:run` ativo se quiser atualização automática.
+- [ ] **City** e **ASN** `.mmdb` no volume Docker `geoip_data`.
+- [ ] Docker Secrets do MaxMind definidos no host (nunca commitados).
+- [ ] Container `geoipupdate` ativo e sem erros nos logs.
 - [ ] Espaço em disco monitorado (City é o arquivo maior).
 - [ ] Atribuição GeoLite2 respeitada em produtos públicos que exibem os dados (ver fim deste README).
 

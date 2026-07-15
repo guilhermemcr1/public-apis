@@ -16,6 +16,7 @@ Variáveis principais:
 - `RATE_WINDOW_SECONDS` (padrão `60`)
 - `TRUSTED_PROXY_CIDRS` (lista CIDR separada por vírgulas)
 - `GEOIP_CITY_DATABASE_PATH` e `GEOIP_ASN_DATABASE_PATH`
+- `GEOIP_RELOAD_INTERVAL` (padrão `5m`): intervalo para recarregar bases alteradas
 
 Headers encaminhados só são aceitos quando `RemoteAddr` pertence a `TRUSTED_PROXY_CIDRS`.
 
@@ -41,3 +42,7 @@ REQUESTS=1000 CONCURRENCY=100 sh scripts/loadtest.sh
 ```
 
 Resultado local de referência em 2026-07-13: 1.000 requests, concorrência 100, 0 erros, p95 0,89 ms e p99 1,69 ms.
+
+## Atualização automática GeoLite2
+
+Em produção, use o `compose.yaml` da raiz. O serviço `geoipupdate` mantém City e ASN em um volume compartilhado; a API Go monta esse volume como somente leitura e recarrega leitores válidos sem reiniciar.
