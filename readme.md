@@ -12,6 +12,7 @@ Aqui você encontra um índice central com as APIs disponíveis. Para ver como u
 - Documentação separada por API em `apis/<nome-da-api>/README.md`
 - Geolocalização opcional na API **getip** (`format=json&geo` ou `geo=full`) via bases **GeoLite2** em disco (`.mmdb`); ver secção abaixo e [apis/getip/README.md](./apis/getip/README.md)
 - Benchmark reproduzível do rebuild Go comparado à referência Laravel em [benchmarks/README.md](./benchmarks/README.md)
+- Guia de cutover e rollback em [MIGRATION.md](./MIGRATION.md)
 
 ## Endpoint principal
 

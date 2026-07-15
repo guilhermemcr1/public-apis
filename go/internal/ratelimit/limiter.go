@@ -39,6 +39,14 @@ func (l *Limiter) Allow(key string) bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	now := l.now()
+	if l.lastSweep.IsZero() || now.Sub(l.lastSweep) >= l.window {
+		for k, v := range l.entries {
+			if now.Sub(v.start) >= 2*l.window {
+				delete(l.entries, k)
+			}
+		}
+		l.lastSweep = now
+	}
 	if _, exists := l.entries[key]; !exists && len(l.entries) >= l.maxEntries {
 		return false
 	}
@@ -48,13 +56,5 @@ func (l *Limiter) Allow(key string) bool {
 	}
 	e.count++
 	l.entries[key] = e
-	if l.lastSweep.IsZero() || now.Sub(l.lastSweep) >= l.window {
-		for k, v := range l.entries {
-			if now.Sub(v.start) >= 2*l.window {
-				delete(l.entries, k)
-			}
-		}
-		l.lastSweep = now
-	}
 	return e.count <= l.limit
 }

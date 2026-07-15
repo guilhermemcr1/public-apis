@@ -1,6 +1,7 @@
 package geoip
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"sync"
@@ -63,9 +64,17 @@ func (l *Lookup) reload(force bool) error {
 	}
 	l.mu.RLock()
 	changed := force || cityStat != l.cityStat || asnStat != l.asnStat
+	cityDisappeared := !force && l.cityPath != "" && cityStat == (fileStamp{}) && l.cityStat != (fileStamp{})
+	asnDisappeared := !force && l.asnPath != "" && asnStat == (fileStamp{}) && l.asnStat != (fileStamp{})
 	l.mu.RUnlock()
 	if !changed {
 		return nil
+	}
+	if cityDisappeared {
+		return fmt.Errorf("%s: %w", l.cityPath, os.ErrNotExist)
+	}
+	if asnDisappeared {
+		return fmt.Errorf("%s: %w", l.asnPath, os.ErrNotExist)
 	}
 	city, err := open(l.cityPath)
 	if err != nil {

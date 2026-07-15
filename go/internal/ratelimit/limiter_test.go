@@ -23,9 +23,14 @@ func TestLimitResetAndCleanup(t *testing.T) {
 }
 
 func TestEntryBound(t *testing.T) {
-	l := newWithClock(1, time.Minute, time.Now)
+	now := time.Unix(1, 0)
+	l := newWithClock(1, time.Minute, func() time.Time { return now })
 	l.maxEntries = 1
 	if !l.Allow("a") || l.Allow("b") {
 		t.Fatal("entry bound")
+	}
+	now = now.Add(3 * time.Minute)
+	if !l.Allow("b") {
+		t.Fatal("expired entries must not block new clients")
 	}
 }

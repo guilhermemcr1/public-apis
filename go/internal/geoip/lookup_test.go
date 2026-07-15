@@ -3,6 +3,7 @@ package geoip
 import (
 	"net"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -26,6 +27,13 @@ func TestReloadWithoutDatabasesIsSafe(t *testing.T) {
 	defer lookup.Close()
 	if err := lookup.ReloadIfChanged(); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestReloadKeepsStateWhenDatabaseDisappears(t *testing.T) {
+	lookup := &Lookup{cityPath: filepath.Join(t.TempDir(), "missing.mmdb"), cityStat: fileStamp{size: 1}}
+	if err := lookup.ReloadIfChanged(); err == nil || lookup.cityStat.size != 1 {
+		t.Fatal("missing update must preserve the last valid state")
 	}
 }
 

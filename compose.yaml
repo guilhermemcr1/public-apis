@@ -7,12 +7,13 @@ services:
     restart: unless-stopped
     init: true
     ports:
-      - "8080:8080"
+      - "${PUBLIC_APIS_BIND:-127.0.0.1}:${PUBLIC_APIS_PORT:-8080}:8080"
     environment:
       APP_TIMEZONE: America/Sao_Paulo
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
       GEOIP_CITY_DATABASE_PATH: /data/geoip/GeoLite2-City.mmdb
       GEOIP_ASN_DATABASE_PATH: /data/geoip/GeoLite2-ASN.mmdb
-      GEOIP_RELOAD_INTERVAL: 5m
+      GEOIP_RELOAD_INTERVAL: ${GEOIP_RELOAD_INTERVAL:-5m}
     volumes:
       - geoip_data:/data/geoip:ro
     depends_on:
