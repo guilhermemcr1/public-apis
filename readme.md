@@ -12,7 +12,6 @@ Este repositório mantém a implementação original em Laravel e o rebuild equi
 - Rate limit por IP para evitar abuso e sobrecarga
 - Documentação separada por API em `apis/<nome-da-api>/README.md`
 - Geolocalização opcional na API **getip** (`format=json&geo` ou `geo=full`) via bases **GeoLite2** em disco (`.mmdb`); ver secção abaixo e [apis/getip/README.md](./apis/getip/README.md)
-- Guia de cutover e rollback em [MIGRATION.md](./MIGRATION.md)
 
 ## Endpoint principal
 
