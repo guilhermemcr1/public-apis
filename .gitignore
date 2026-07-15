@@ -24,10 +24,3 @@ go/public-apis
 coverage.out
 *.prof
 *.pprof
-
-# Benchmark runs are local unless explicitly curated below
-benchmarks/results/*
-!benchmarks/results/2026-07-14_portfolio/
-!benchmarks/results/2026-07-14_portfolio/**
-!benchmarks/results/2026-07-14_php-fpm/
-!benchmarks/results/2026-07-14_php-fpm/**

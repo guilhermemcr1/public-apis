@@ -1,17 +1,17 @@
-# APIs Públicas
+# APIs Públicas — Laravel e Go
 
 Repositório das minhas APIs públicas para uso em projetos internos, projetos públicos e testes.
 
-Aqui você encontra um índice central com as APIs disponíveis. Para ver como usar cada API, acesse a documentação específica da API desejada.
+Este repositório mantém a implementação original em Laravel e o rebuild equivalente em Go. O rebuild existe para testar a linguagem, aprender padrões de implementação e validar uma alternativa de alta performance para execução em container.
 
 ## Sobre o repositório
 
-- Rebuild principal em Go (pasta `go/`); Laravel permanece em `laravel/` como referência de contrato durante a migração
+- Laravel em `laravel/` e rebuild em Go em `go/`
+- O Go é uma implementação experimental/educacional para aprendizado, testes de linguagem e evolução da API
 - APIs sem autenticação até o momento
 - Rate limit por IP para evitar abuso e sobrecarga
 - Documentação separada por API em `apis/<nome-da-api>/README.md`
 - Geolocalização opcional na API **getip** (`format=json&geo` ou `geo=full`) via bases **GeoLite2** em disco (`.mmdb`); ver secção abaixo e [apis/getip/README.md](./apis/getip/README.md)
-- Benchmark reproduzível do rebuild Go comparado à referência Laravel em [benchmarks/README.md](./benchmarks/README.md)
 - Guia de cutover e rollback em [MIGRATION.md](./MIGRATION.md)
 
 ## Endpoint principal
@@ -84,6 +84,5 @@ curl "http://127.0.0.1:8000/getuuid?version=7"
 - `apis/`: pasta de documentação das APIs, uma subpasta por API
 - `apis/getip/README.md`: documentação funcional completa da API getip (texto/JSON, `ipv4`/`ipv6`, opcional `geo` + GeoLite2, exemplos JS/PHP/Node, estratégia operacional)
 - `apis/getuuid/README.md`: documentação funcional completa da API getuuid (com exemplos JS, PHP e Node)
-- `benchmarks/`: metodologia, automação e resultados brutos do comparativo Go × Laravel
 - `compose.yaml`: serviço Go e updater oficial do GeoLite2
 - `secrets/README.md`: preparação dos secrets de deploy (não versionados)
