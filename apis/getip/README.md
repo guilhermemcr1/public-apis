@@ -20,11 +20,12 @@ Além do IP em texto ou JSON simples, você pode pedir **`geo`** (GeoLite2 City 
 
 ### `GET /getip`
 
-Retorna o IP público detectado do cliente (cabeçalhos como `CF-Connecting-IP`, `X-Forwarded-For`, etc., são considerados quando presentes).
+Retorna o IP público detectado do cliente (cabeçalhos como `CF-Connecting-IP`, `X-Forwarded-For`, etc., são considerados quando presentes) ou consulta um IP informado.
 
 #### Query params suportados
 
 - `format=json`: retorna payload JSON (com `response_code`, `meta.timestamp`, `meta.server_timezone`).
+- `ip`: consulta explicitamente um endereço IPv4 ou IPv6, por exemplo `?ip=8.8.8.8`. Quando omitido, usa o IP do cliente detectado. O lookup continua local e não faz chamadas de rede.
 - `geo`: **só com `format=json`**. Omitido = sem bloco `geo`. Valores **truthy**, flag **`?geo`** sem valor, ou `minimal` / `min`: **localização minimal** (país, estado, cidade, CEP, timezone) + **`geo.isp`**. **`geo=full`**: mesma estrutura enriquecida de City (**continent**, **subdivision**, **coordinates**, EU em país, etc.) + **isp**. **`geo=false`** (ou `0` / `no` / `off`) desativa.
 - `ipv4`: exige resposta IPv4
 - `ipv6`: exige resposta IPv6
@@ -36,7 +37,7 @@ Deploy e atualização: secção **Estratégia operacional** abaixo.
 #### Respostas esperadas
 
 - `200`: sucesso
-- `400`: parâmetros inválidos (ex.: `ipv4` e `ipv6` juntos; ou `geo` sem `format=json`)
+- `400`: parâmetros inválidos (ex.: `ip` inválido, `ipv4` e `ipv6` juntos; ou `geo` sem `format=json`)
 - `404`: tipo de IP solicitado não encontrado
 - `405`: método não permitido
 - `429`: limite de requisições por IP atingido
@@ -291,6 +292,7 @@ run().catch((error) => {
 ```bash
 curl "https://api.galarca.dev/getip"
 curl "https://api.galarca.dev/getip?format=json"
+curl "https://api.galarca.dev/getip?format=json&ip=8.8.8.8"
 curl "https://api.galarca.dev/getip?format=json&ipv4"
 curl "https://api.galarca.dev/getip?format=json&ipv6"
 curl "https://api.galarca.dev/getip?format=json&geo=1"

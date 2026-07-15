@@ -75,6 +75,14 @@ func TestGetIPContract(t *testing.T) {
 	if !strings.Contains(w.Body.String(), `"city_database_unavailable"`) {
 		t.Fatal(w.Body.String())
 	}
+	w = request(t, h, "GET", "/getip?format=json&ip=8.8.8.8", remote, nil)
+	if !strings.Contains(w.Body.String(), `"ip":"8.8.8.8"`) || !strings.Contains(w.Body.String(), `"private":false`) {
+		t.Fatalf("requested ip: %s", w.Body.String())
+	}
+	w = request(t, h, "GET", "/getip?format=json&ip=not-an-ip", remote, nil)
+	if w.Code != 400 || !strings.Contains(w.Body.String(), `"response_code":400`) {
+		t.Fatalf("invalid requested ip: %d %s", w.Code, w.Body.String())
+	}
 	w = request(t, h, "GET", "/getip?format=json", "203.0.113.1:1", nil)
 	if !strings.Contains(w.Body.String(), `"private":true`) {
 		t.Fatal(w.Body.String())

@@ -6,6 +6,7 @@
       "get": {
         "parameters": [
           {"name": "format", "in": "query", "schema": {"type": "string", "enum": ["json"]}},
+          {"name": "ip", "in": "query", "description": "Endereço IPv4 ou IPv6 a consultar; omitido usa o cliente detectado.", "schema": {"type": "string", "format": "ip"}},
           {"name": "ipv4", "in": "query", "allowEmptyValue": true, "schema": {"type": "boolean"}},
           {"name": "ipv6", "in": "query", "allowEmptyValue": true, "schema": {"type": "boolean"}},
           {"name": "geo", "in": "query", "allowEmptyValue": true, "schema": {"type": "string", "enum": ["minimal", "min", "full", "true", "false", "1", "0"]}}

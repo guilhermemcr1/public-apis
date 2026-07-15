@@ -25,6 +25,18 @@ func (s *service) getIP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ip := clientIP(r, s.cfg.TrustedProxies)
+	if q.Has("ip") {
+		requested := strings.TrimSpace(q.Get("ip"))
+		parsed := net.ParseIP(requested)
+		if requested == "" || parsed == nil {
+			writeIPError(w, "O parâmetro ip deve conter um endereço IPv4 ou IPv6 válido.", 400, js)
+			return
+		}
+		ip = parsed
+		if v4 := ip.To4(); v4 != nil {
+			ip = v4
+		}
+	}
 	if ip == nil {
 		ip = net.IPv4zero
 	}
