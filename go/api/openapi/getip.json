@@ -1,0 +1,29 @@
+{
+  "openapi": "3.0.3",
+  "info": {"title": "IP Detection API", "version": "1.6.0"},
+  "paths": {
+    "/getip": {
+      "get": {
+        "parameters": [
+          {"name": "format", "in": "query", "schema": {"type": "string", "enum": ["json"]}},
+          {"name": "ip", "in": "query", "description": "Endereço IPv4 ou IPv6 a consultar; omitido usa o cliente detectado.", "schema": {"type": "string", "format": "ip"}},
+          {"name": "ipv4", "in": "query", "allowEmptyValue": true, "schema": {"type": "boolean"}},
+          {"name": "ipv6", "in": "query", "allowEmptyValue": true, "schema": {"type": "boolean"}},
+          {"name": "geo", "in": "query", "allowEmptyValue": true, "schema": {"type": "string", "enum": ["minimal", "min", "full", "true", "false", "1", "0"]}}
+        ],
+        "responses": {
+          "200": {"description": "Detected IP", "content": {"text/plain": {"schema": {"type": "string", "format": "ip"}}, "application/json": {"schema": {"$ref": "#/components/schemas/GetIPSuccess"}}}},
+          "400": {"description": "Invalid parameters", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}, "text/plain": {"schema": {"type": "string"}}}},
+          "404": {"description": "Requested IP version unavailable"},
+          "405": {"description": "Method not allowed"},
+          "429": {"description": "Rate limit exceeded"}
+        }
+      },
+      "options": {"responses": {"204": {"description": "CORS preflight"}}}
+    }
+  },
+  "components": {"schemas": {
+    "Error": {"type": "object", "required": ["response_code", "error"], "properties": {"response_code": {"type": "integer"}, "error": {"type": "string"}}},
+    "GetIPSuccess": {"type": "object", "required": ["response_code", "ip", "version", "private", "meta"], "properties": {"response_code": {"type": "integer", "example": 200}, "ip": {"type": "string", "format": "ip"}, "version": {"type": "string", "enum": ["v4", "v6"]}, "private": {"type": "boolean"}, "meta": {"type": "object"}, "geo": {"type": "object", "nullable": true}}}
+  }}
+}

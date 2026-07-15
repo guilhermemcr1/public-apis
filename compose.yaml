@@ -1,0 +1,44 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: go/Dockerfile
+    image: public-apis-go:local
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${PUBLIC_APIS_BIND:-127.0.0.1}:${PUBLIC_APIS_PORT:-3000}:8080"
+    environment:
+      APP_TIMEZONE: America/Sao_Paulo
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      GEOIP_CITY_DATABASE_PATH: /data/geoip/GeoLite2-City.mmdb
+      GEOIP_ASN_DATABASE_PATH: /data/geoip/GeoLite2-ASN.mmdb
+      GEOIP_RELOAD_INTERVAL: ${GEOIP_RELOAD_INTERVAL:-5m}
+    volumes:
+      - geoip_data:/data/geoip:ro
+    depends_on:
+      - geoipupdate
+
+  geoipupdate:
+    image: ghcr.io/maxmind/geoipupdate:v7.1.1
+    restart: unless-stopped
+    environment:
+      GEOIPUPDATE_EDITION_IDS: GeoLite2-City GeoLite2-ASN
+      GEOIPUPDATE_FREQUENCY: "72"
+      GEOIPUPDATE_DB_DIR: /usr/share/GeoIP
+      GEOIPUPDATE_ACCOUNT_ID_FILE: /run/secrets/maxmind_account_id
+      GEOIPUPDATE_LICENSE_KEY_FILE: /run/secrets/maxmind_license_key
+    secrets:
+      - maxmind_account_id
+      - maxmind_license_key
+    volumes:
+      - geoip_data:/usr/share/GeoIP
+
+volumes:
+  geoip_data:
+
+secrets:
+  maxmind_account_id:
+    file: ./secrets/maxmind_account_id.txt
+  maxmind_license_key:
+    file: ./secrets/maxmind_license_key.txt

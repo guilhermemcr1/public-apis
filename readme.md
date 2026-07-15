@@ -1,12 +1,13 @@
-# APIs Públicas
+# APIs Públicas — Laravel e Go
 
 Repositório das minhas APIs públicas para uso em projetos internos, projetos públicos e testes.
 
-Aqui você encontra um índice central com as APIs disponíveis. Para ver como usar cada API, acesse a documentação específica da API desejada.
+Este repositório mantém a implementação original em Laravel e o rebuild equivalente em Go. O rebuild existe para testar a linguagem, aprender padrões de implementação e validar uma alternativa de alta performance para execução em container.
 
 ## Sobre o repositório
 
-- Base principal em Laravel (pasta `laravel/`)
+- Laravel em `laravel/` e rebuild em Go em `go/`
+- O Go é uma implementação experimental/educacional para aprendizado, testes de linguagem e evolução da API
 - APIs sem autenticação até o momento
 - Rate limit por IP para evitar abuso e sobrecarga
 - Documentação separada por API em `apis/<nome-da-api>/README.md`
@@ -33,15 +34,31 @@ Objetivo: manter lookups **rápidos e locais** usando arquivos **`.mmdb`** (sem 
 
 | Passo | Ação |
 |--------|------|
-| Credenciais | Definir `MAXMIND_LICENSE_KEY` no `.env` da app Laravel ([detalhes MaxMind](https://dev.maxmind.com/geoip/updating-databases/)). |
-| Primeira instalação | Na pasta `laravel/`: `php artisan geoip:update` (baixa **GeoLite2-City** e **GeoLite2-ASN** para `storage/app/geoip/`). |
-| Atualizações | Scheduler Laravel: `geoip:update` semanal (domingo 04:30) quando `GEOIP_SCHEDULE_ENABLED=true`; em produção o Cron deve executar `php artisan schedule:run` com a periodicidade habitual (ex.: a cada minuto). Desative o agendamento se preferir só atualização manual. |
-| Deploy | Após alterar `.env`: `php artisan config:cache`. Os `.mmdb` não vão para o Git (volume ou comando pós-deploy). |
+| Credenciais | Guardar Account ID e License Key como Docker Secrets; nunca na API Go ou no Git ([detalhes MaxMind](https://dev.maxmind.com/geoip/updating-databases/)). |
+| Primeira instalação | Criar `secrets/maxmind_account_id.txt` e `secrets/maxmind_license_key.txt`, depois executar `docker compose up -d --build`. |
+| Atualizações | O serviço oficial `geoipupdate` baixa City e ASN a cada 72 horas no volume compartilhado; a API Go recarrega arquivos válidos automaticamente. |
+| Deploy | Usar [compose.yaml](./compose.yaml). Os `.mmdb` ficam no volume Docker e não entram no Git. |
 | Compliance | Respeitar [termos/atribuição GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-data) nos materiais públicos que mencionem os dados. |
 
 Documentação funcional completa, exemplos de payload e edge cases: **[apis/getip/README.md](./apis/getip/README.md)**. Resumo técnico Laravel: **[laravel/README.md](./laravel/README.md)**.
 
 ## Executar localmente
+
+Go:
+
+```bash
+cd go
+go run ./cmd/public-apis
+```
+
+Container Go:
+
+```bash
+docker build -f go/Dockerfile -t public-apis-go:local .
+docker run --rm -p 8080:8080 public-apis-go:local
+```
+
+Implementação Laravel de referência:
 
 ```bash
 cd laravel
@@ -61,8 +78,10 @@ curl "http://127.0.0.1:8000/getuuid?version=7"
 
 ## Estrutura do repositório
 
-- `laravel/`: aplicação principal em Laravel
+- `go/`: rebuild principal em Go, Dockerfile, testes e Swagger offline
+- `laravel/`: implementação Laravel mantida como referência de contrato
 - `apis/`: pasta de documentação das APIs, uma subpasta por API
 - `apis/getip/README.md`: documentação funcional completa da API getip (texto/JSON, `ipv4`/`ipv6`, opcional `geo` + GeoLite2, exemplos JS/PHP/Node, estratégia operacional)
 - `apis/getuuid/README.md`: documentação funcional completa da API getuuid (com exemplos JS, PHP e Node)
-
+- `compose.yaml`: serviço Go e updater oficial do GeoLite2
+- `secrets/README.md`: preparação dos secrets de deploy (não versionados)

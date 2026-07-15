@@ -1,0 +1,26 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.key
+*.pem
+*.mmdb
+secrets/*
+!secrets/README.md
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Go build and test artifacts
+go/*.exe
+go/*.test
+go/*.out
+go/vendor/
+go/public-apis
+coverage.out
+*.prof
+*.pprof
