@@ -52,7 +52,7 @@ As bases GeoLite2 são distribuídas como binários **MaxMind DB**. A API usa le
 
 | Variável | Função |
 |----------|--------|
-| `GEOIPUPDATE_ACCOUNT_ID_FILE` / `GEOIPUPDATE_LICENSE_KEY_FILE` | Docker Secrets usados somente pelo `geoipupdate`. |
+| `GEOIPUPDATE_ACCOUNT_ID` / `GEOIPUPDATE_LICENSE_KEY` | Alimentadas por `MAXMIND_ACCOUNT_ID` / `MAXMIND_LICENSE_KEY`; usadas somente pelo `geoipupdate`. |
 | `GEOIPUPDATE_EDITION_IDS` | `GeoLite2-City GeoLite2-ASN`. |
 | `GEOIPUPDATE_FREQUENCY` | `72` horas no compose. |
 | `GEOIP_CITY_DATABASE_PATH` / `GEOIP_ASN_DATABASE_PATH` | Caminhos somente leitura no Go; padrões em `/data/geoip/`. |
@@ -62,14 +62,14 @@ No container Go, os arquivos são montados em `/data/geoip` como volume somente 
 
 ### Fluxo recomendado
 
-1. **Bootstrap:** criar os dois arquivos em `secrets/` conforme [secrets/README.md](../../secrets/README.md).
+1. **Bootstrap:** definir `MAXMIND_ACCOUNT_ID` e `MAXMIND_LICENSE_KEY` no ambiente do deploy (aba Environment do Dokploy ou `.env` local).
 2. **Rotina:** executar `docker compose up -d --build`; o atualizador oficial mantém o volume atualizado.
 3. **Recarga:** o Go valida e troca os leitores automaticamente, mantendo a versão anterior quando uma atualização falha.
 
 ### Checklist rápido
 
 - [ ] **City** e **ASN** `.mmdb` no volume Docker `geoip_data`.
-- [ ] Docker Secrets do MaxMind definidos no host (nunca commitados).
+- [ ] Credenciais do MaxMind definidas como variáveis de ambiente no deploy (nunca commitadas).
 - [ ] Container `geoipupdate` ativo e sem erros nos logs.
 - [ ] Espaço em disco monitorado (City é o arquivo maior).
 - [ ] Atribuição GeoLite2 respeitada em produtos públicos que exibem os dados (ver fim deste README).

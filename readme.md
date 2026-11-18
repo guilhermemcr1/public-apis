@@ -34,8 +34,8 @@ Objetivo: manter lookups **rápidos e locais** usando arquivos **`.mmdb`** (sem 
 
 | Passo | Ação |
 |--------|------|
-| Credenciais | Guardar Account ID e License Key como Docker Secrets; nunca na API Go ou no Git ([detalhes MaxMind](https://dev.maxmind.com/geoip/updating-databases/)). |
-| Primeira instalação | Criar `secrets/maxmind_account_id.txt` e `secrets/maxmind_license_key.txt`, depois executar `docker compose up -d --build`. |
+| Credenciais | Guardar Account ID e License Key como variáveis de ambiente (`MAXMIND_ACCOUNT_ID` / `MAXMIND_LICENSE_KEY`) no Dokploy ou num `.env` local; nunca na API Go ou no Git ([detalhes MaxMind](https://dev.maxmind.com/geoip/updating-databases/)). |
+| Primeira instalação | Definir as variáveis acima (ver [.env.example](./.env.example)) e fazer o deploy do [compose.yaml](./compose.yaml) no Dokploy (domínio → serviço `api`, porta `8080`) ou rodar `docker compose up -d --build`. |
 | Atualizações | O serviço oficial `geoipupdate` baixa City e ASN a cada 72 horas no volume compartilhado; a API Go recarrega arquivos válidos automaticamente. |
 | Deploy | Usar [compose.yaml](./compose.yaml). Os `.mmdb` ficam no volume Docker e não entram no Git. |
 | Compliance | Respeitar [termos/atribuição GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-data) nos materiais públicos que mencionem os dados. |
@@ -84,4 +84,3 @@ curl "http://127.0.0.1:8000/getuuid?version=7"
 - `apis/getip/README.md`: documentação funcional completa da API getip (texto/JSON, `ipv4`/`ipv6`, opcional `geo` + GeoLite2, exemplos JS/PHP/Node, estratégia operacional)
 - `apis/getuuid/README.md`: documentação funcional completa da API getuuid (com exemplos JS, PHP e Node)
 - `compose.yaml`: serviço Go e updater oficial do GeoLite2
-- `secrets/README.md`: preparação dos secrets de deploy (não versionados)
